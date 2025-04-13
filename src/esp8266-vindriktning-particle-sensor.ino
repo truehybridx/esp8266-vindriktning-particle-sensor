@@ -26,7 +26,7 @@ uint32_t lastMqttConnectionAttempt = 0;
 const uint16_t mqttConnectionInterval = 60000; // 1 minute = 60 seconds = 60000 milliseconds
 
 uint32_t statusPublishPreviousMillis = 0;
-const uint16_t statusPublishInterval = 30000; // 30 seconds = 30000 milliseconds
+const uint16_t statusPublishInterval = 7000; // 7 seconds = 7000 milliseconds
 
 char identifier[24];
 #define FIRMWARE_PREFIX "esp8266-vindriktning-particle-sensor"
@@ -124,15 +124,22 @@ void loop() {
     if (currentMillis - statusPublishPreviousMillis >= statusPublishInterval) {
         statusPublishPreviousMillis = currentMillis;
 
+        Serial.print(" Wifi: ");
+        Serial.println(WiFi.status());
+        Serial.print(" MQTT: ");
+        Serial.println(mqttClient.connected());
+        Serial.print(" State: ");
+        Serial.println(state.valid);
+
         if (state.valid) {
-            printf("Publish state\n");
+            Serial.printf("Publish state\n");
             publishState();
         }
     }
 
     if (!mqttClient.connected() && currentMillis - lastMqttConnectionAttempt >= mqttConnectionInterval) {
         lastMqttConnectionAttempt = currentMillis;
-        printf("Reconnect mqtt\n");
+        Serial.printf("Reconnect mqtt\n");
         mqttReconnect();
     }
 }
